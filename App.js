@@ -1,13 +1,32 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {StyleSheet, View, FlatList} from 'react-native';
+import Todo from "./Todo";
 
 export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      todos: []
+    }
+  }
+  componentDidMount() {
+    fetch('http://192.168.0.16:1337/todo')
+      .then((response) => response.json())
+      .then((todos) => {
+        this.setState({todos})
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  }
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
+        <FlatList
+          data={this.state.todos}
+          keyExtractor={(item) => item.id}
+          renderItem={({item}) => <Todo item={item} />}
+        />
       </View>
     );
   }
@@ -16,8 +35,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 22
   },
 });
