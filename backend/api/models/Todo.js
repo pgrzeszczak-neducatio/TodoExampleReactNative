@@ -13,7 +13,7 @@ module.exports = {
     },
     done: {
       type: "boolean",
-      defaults: false
+      defaultsTo: false
     }
   }
 };
