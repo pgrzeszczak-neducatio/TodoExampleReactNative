@@ -8,16 +8,28 @@ export default class App extends React.Component {
     this.state = {
       todos: []
     }
+    this.onItemUpdate = this.onItemUpdate.bind(this);
   }
   componentDidMount() {
     fetch('http://192.168.0.16:1337/todo')
       .then((response) => response.json())
       .then((todos) => {
         this.setState({todos})
-      })
-      .catch((error) => {
-        alert(error.message);
       });
+  }
+  onItemUpdate(item, callback = () => {}) {
+    this.setState((prevState) => ({
+      todos: prevState.todos.map((todo) => {
+        if (todo.id === item.id) {
+          return Object.assign({}, todo, {
+            title: item.title,
+            done: item.done
+          });
+        } else {
+          return todo;
+        }
+      })
+    }), callback);
   }
   render() {
     return (
@@ -25,7 +37,7 @@ export default class App extends React.Component {
         <FlatList
           data={this.state.todos}
           keyExtractor={(item) => item.id}
-          renderItem={({item}) => <Todo item={item} />}
+          renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} />}
         />
       </View>
     );
