@@ -7,8 +7,9 @@ export default class App extends React.Component {
     super();
     this.state = {
       todos: []
-    }
+    };
     this.onItemUpdate = this.onItemUpdate.bind(this);
+    this.onItemRemove = this.onItemRemove.bind(this);
   }
   componentDidMount() {
     fetch('http://192.168.0.16:1337/todo')
@@ -31,13 +32,18 @@ export default class App extends React.Component {
       })
     }), callback);
   }
+  onItemRemove(item, callback = () => {}) {
+    this.setState((prevState) => ({
+      todos: prevState.todos.filter((todo) => todo.id !== item.id)
+    }), callback);
+  }
   render() {
     return (
       <View style={styles.container}>
         <FlatList
           data={this.state.todos}
           keyExtractor={(item) => item.id}
-          renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} />}
+          renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} onItemRemove={this.onItemRemove} />}
         />
       </View>
     );
