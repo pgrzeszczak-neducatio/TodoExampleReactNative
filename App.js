@@ -16,6 +16,7 @@ export default class App extends React.Component {
   componentDidMount() {
     fetch('http://192.168.0.16:1337/todo')
       .then((response) => response.json())
+      .then((todos) => todos.sort((todoA,todoB) => new Date(todoB.createdAt) - new Date(todoA.createdAt)))
       .then((todos) => {
         this.setState({todos})
       });
