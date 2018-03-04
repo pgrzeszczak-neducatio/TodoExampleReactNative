@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, FlatList, Text} from 'react-native';
+import {StyleSheet, View, FlatList, RefreshControl} from 'react-native';
 import Todo from "./Todo";
 import NewTodo from "./NewTodo";
 
@@ -7,19 +7,31 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      todos: []
+      todos: [],
+      refreshing: false
     };
     this.onItemUpdate = this.onItemUpdate.bind(this);
     this.onItemRemove = this.onItemRemove.bind(this);
     this.onItemAdd = this.onItemAdd.bind(this);
+    this.onRefresh = this.onRefresh.bind(this);
   }
   componentDidMount() {
-    fetch('http://192.168.0.16:1337/todo')
-      .then((response) => response.json())
-      .then((todos) => todos.sort((todoA,todoB) => new Date(todoB.createdAt) - new Date(todoA.createdAt)))
-      .then((todos) => {
-        this.setState({todos})
-      });
+    this.onRefresh();
+  }
+  onRefresh() {
+    this.setState({
+      refreshing: true
+    }, () => {
+      fetch('http://192.168.0.16:1337/todo')
+        .then((response) => response.json())
+        .then((todos) => todos.sort((todoA,todoB) => new Date(todoB.createdAt) - new Date(todoA.createdAt)))
+        .then((todos) => {
+          this.setState({
+            todos,
+            refreshing: false
+          })
+        });
+    });
   }
   onItemUpdate(item, callback = () => {}) {
     this.setState((prevState) => ({
@@ -57,6 +69,12 @@ export default class App extends React.Component {
             data={this.state.todos}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} onItemRemove={this.onItemRemove} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this.onRefresh}
+              />
+            }
           />
         </View>
       </View>
