@@ -1,6 +1,7 @@
 import React from 'react';
-import {StyleSheet, View, FlatList} from 'react-native';
+import {StyleSheet, View, FlatList, Text} from 'react-native';
 import Todo from "./Todo";
+import NewTodo from "./NewTodo";
 
 export default class App extends React.Component {
   constructor() {
@@ -10,6 +11,7 @@ export default class App extends React.Component {
     };
     this.onItemUpdate = this.onItemUpdate.bind(this);
     this.onItemRemove = this.onItemRemove.bind(this);
+    this.onItemAdd = this.onItemAdd.bind(this);
   }
   componentDidMount() {
     fetch('http://192.168.0.16:1337/todo')
@@ -37,14 +39,25 @@ export default class App extends React.Component {
       todos: prevState.todos.filter((todo) => todo.id !== item.id)
     }), callback);
   }
+  onItemAdd(item, callback = () => {}) {
+    this.setState((prevState) => ({
+      todos: [item, ...prevState.todos]
+    }), callback);
+  }
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={this.state.todos}
-          keyExtractor={(item) => item.id}
-          renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} onItemRemove={this.onItemRemove} />}
-        />
+        <View style={styles.add}>
+          <NewTodo style={styles.add} onItemAdd={this.onItemAdd} />
+        </View>
+        <View style={styles.list}>
+          <FlatList
+            style={styles.list}
+            data={this.state.todos}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => <Todo item={item} onItemUpdate={this.onItemUpdate} onItemRemove={this.onItemRemove} />}
+          />
+        </View>
       </View>
     );
   }
@@ -53,6 +66,13 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22
+    paddingTop: 24
   },
+  list: {
+    flex: 1
+  },
+  add: {
+    flex: 0,
+    height: 50
+  }
 });
